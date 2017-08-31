@@ -24,7 +24,6 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -50,20 +49,34 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
     @Override protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 
-            request = msg;
-            String uri = request.uri();
-            QueryStringDecoder decoder = new QueryStringDecoder(uri);
+        request = msg;
+        String uri = request.uri();
+        QueryStringDecoder decoder = new QueryStringDecoder(uri);
 
-            switch (decoder.path()) {
-            case "/slow":
-                slowResponse(ctx, decoder.parameters());
-                break;
-            case "/conclose":
-                closeConnection(ctx, decoder.parameters());
-                break;
-            default:
-                resourceNotFound(ctx);
-            }
+        switch (decoder.path()) {
+        case "/slow":
+            slowResponse(ctx, decoder.parameters());
+            break;
+        case "/conclose":
+            closeConnection(ctx, decoder.parameters());
+            break;
+        case "/echo":
+            echoMessage(ctx, msg);
+            break;
+        default:
+            resourceNotFound(ctx);
+        }
+    }
+
+    private void echoMessage(ChannelHandlerContext ctx, FullHttpRequest msg) {
+
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.OK, msg.content().copy());
+        String contentType = msg.headers().get(HttpHeaderNames.CONTENT_TYPE);
+        if (contentType != null) {
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+        }
+        response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+        ctx.write(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     private void resourceNotFound(ChannelHandlerContext ctx) {

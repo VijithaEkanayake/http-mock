@@ -20,16 +20,11 @@
 script_dir=$(dirname "$0")
 # Change directory to make sure logs directory is created inside $script_dir
 cd $script_dir
-service_name=netty-http-echo-service
-sleep_time=$1
+service_jar=netty-http-connection-service-0.1.0-SNAPSHOT.jar
 
-if [ -z "$sleep_time" ]; then
-    sleep_time=0
-fi
-
-if pgrep -f "$service_name" > /dev/null; then
+if pgrep -f "$service_jar" > /dev/null; then
     echo "Shutting down Netty"
-    pkill -f $service_name
+    pkill -f $service_jar
 fi
 
 gc_log_file=./logs/nettygc.log
@@ -43,4 +38,4 @@ mkdir -p logs
 
 echo "Starting Netty"
 nohup java -Xms4g -Xmx4g -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:$gc_log_file \
-    -jar $service_name-${performance.common.version}.jar --worker-threads 2000 --sleep-time $sleep_time > netty.out 2>&1 &
+    -jar $service_jar --worker-threads 1000 --port 8587 > netty.out 2>&1 &

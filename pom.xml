@@ -16,11 +16,11 @@
 -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>5</version>
-    </parent>
+    <!--<parent>-->
+        <!--<groupId>org.wso2</groupId>-->
+        <!--<artifactId>wso2</artifactId>-->
+        <!--<version>5</version>-->
+    <!--</parent>-->
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.performance.common</groupId>
@@ -40,18 +40,11 @@
         </license>
     </licenses>
 
-    <scm>
-        <url>https://github.com/wso2/performance-common.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/performance-common.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/performance-common.git</connection>
-        <tag>HEAD</tag>
-    </scm>
-
     <modules>
-        <module>components/netty-http-echo-service</module>
-        <module>components/payload-generator</module>
-        <module>components/jtl-splitter</module>
-        <module>distribution</module>
+        <module>components/netty-http-connection-service</module>
+        <!--<module>components/payload-generator</module>-->
+        <!--<module>components/jtl-splitter</module>-->
+        <!--<module>distribution</module>-->
     </modules>
 
     <dependencyManagement>
@@ -158,24 +151,24 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <version>${maven.source.plugin.version}</version>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.maven.plugin.version}</version>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <xmlOutput>true</xmlOutput>
-                    <excludeFilterFile>${project.parent.basedir}/findbugs-exclude.xml</excludeFilterFile>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>findbugs-maven-plugin</artifactId>-->
+                <!--<version>${findbugs.maven.plugin.version}</version>-->
+                <!--<configuration>-->
+                    <!--<effort>Max</effort>-->
+                    <!--<threshold>Low</threshold>-->
+                    <!--<xmlOutput>true</xmlOutput>-->
+                    <!--<excludeFilterFile>${project.parent.basedir}/findbugs-exclude.xml</excludeFilterFile>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>check</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
         <pluginManagement>
             <plugins>
