@@ -24,15 +24,19 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
@@ -42,6 +46,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
     private HttpRequest request;
     private final StringBuilder buf = new StringBuilder();
+    static AtomicInteger atomicInteger = new AtomicInteger(0);
 
     @Override public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.flush();
@@ -70,13 +75,20 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
     private void echoMessage(ChannelHandlerContext ctx, FullHttpRequest msg) {
 
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.OK, msg.content().copy());
+        boolean keepAlive = HttpUtil.isKeepAlive(msg);
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, msg.content().copy());
         String contentType = msg.headers().get(HttpHeaderNames.CONTENT_TYPE);
         if (contentType != null) {
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
         }
         response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
-        ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+        if (!keepAlive) {
+            ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+        } else {
+            response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            ctx.write(response);
+        }
+        //System.out.println("The Message count is : " + (atomicInteger.incrementAndGet()));
     }
 
     private void resourceNotFound(ChannelHandlerContext ctx) {
@@ -89,8 +101,10 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
     }
 
     private void closeConnection(ChannelHandlerContext ctx, Map<String, List<String>> parameters) {
-        delay(parameters);
+        //delay(parameters);
+        System.out.println("Method reached");
         ctx.channel().close();
+        //ctx.close();
     }
 
     private void slowResponse(ChannelHandlerContext ctx, Map<String, List<String>> parameters) {
